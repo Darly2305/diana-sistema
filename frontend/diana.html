@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIANA — Diagnóstico de Nivel en Algoritmia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+/* ── TOKENS ───────────────────────────────────────────── */
+:root {
+  --navy:      #0c1445;
+  --blue:      #3b6ff0;
+  --blue-light:#5b87f5;
+  --blue-dim:  #dde7ff;
+  --surface:   #f5f7ff;
+  --white:     #ffffff;
+  --text-1:    #0f172a;
+  --text-2:    #475569;
+  --text-3:    #94a3b8;
+  --border:    #e2e8f0;
+  --green:     #10b981;
+  --amber:     #f59e0b;
+  --red:       #ef4444;
+
+  --font-head: 'Outfit', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg: 0 20px 48px rgba(12,20,69,.15);
+  --radius:    14px;
+  --radius-sm: 8px;
+}
+
+/* ── RESET ────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--surface);
+  color: var(--text-1);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--font-body); }
+input { font-family: var(--font-body); }
+
+/* ── LAYOUT ───────────────────────────────────────────── */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  display: none;
+  min-height: 100vh;
+  animation: fadeIn .35s ease;
+}
+.screen.active { display: flex; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── AUTH LAYOUT (login / registro) ─────────────────── */
+.auth-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -20%, #c7d5fd 0%, transparent 60%),
+    var(--surface);
+}
+
+.auth-card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 440px;
+  padding: 40px;
+  border: 1px solid rgba(59,111,240,.12);
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.brand-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--navy);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.brand-text h1 {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.1;
+}
+.brand-text span {
+  font-size: .72rem;
+  color: var(--text-3);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.auth-title {
+  font-family: var(--font-head);
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 6px;
+}
+.auth-subtitle {
+  font-size: .9rem;
+  color: var(--text-2);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* ── FORM ─────────────────────────────────────────────── */
+.form-group { margin-bottom: 16px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+label {
+  display: block;
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--text-2);
+  margin-bottom: 6px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: .92rem;
+  color: var(--text-1);
+  background: var(--white);
+  transition: border-color .2s, box-shadow .2s;
+  outline: none;
+}
+input:focus, select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(59,111,240,.12);
+}
+input::placeholder { color: var(--text-3); }
+
+/* ── BUTTONS ──────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--radius-sm);
+  font-size: .92rem;
+  font-weight: 600;
+  border: none;
+  transition: all .2s;
+}
+.btn-primary {
+  background: var(--blue);
+  color: white;
+  width: 100%;
+}
+.btn-primary:hover { background: var(--blue-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,111,240,.35); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { background: var(--text-3); cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--blue);
+  border: 1.5px solid var(--blue-dim);
+}
+.btn-ghost:hover { background: var(--blue-dim); }
+
+.btn-lg { padding: 14px 28px; font-size: 1rem; border-radius: var(--radius); }
+
+.auth-footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: .87rem;
+  color: var(--text-2);
+}
+.auth-footer a { color: var(--blue); font-weight: 500; }
+
+/* ── ERROR / ALERT ────────────────────────────────────── */
+.alert {
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  font-size: .85rem;
+  margin-bottom: 16px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+.alert.show { display: flex; }
+.alert-error  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.alert-success{ background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.alert-info   { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+
+/* ── ENCUESTA ─────────────────────────────────────────── */
+.survey-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse 70% 50% at 80% 20%, #d0e2fd 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 10% 90%, #c7f0e8 0%, transparent 50%),
+    var(--surface);
+}
+
+.survey-card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 560px;
+  padding: 40px;
+  border: 1px solid rgba(59,111,240,.1);
+}
+
+.survey-step {
+  display: none;
+  animation: fadeIn .3s ease;
+}
+.survey-step.active { display: block; }
+
+.survey-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--blue-dim);
+  color: var(--blue);
+  font-size: .78rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  letter-spacing: .03em;
+}
+
+.survey-title {
+  font-family: var(--font-head);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 8px;
+}
+.survey-desc {
+  font-size: .9rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.option-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+  transition: all .2s;
+  text-align: left;
+  width: 100%;
+}
+.option-btn:hover {
+  border-color: var(--blue);
+  background: var(--blue-dim);
+  transform: translateX(3px);
+}
+.option-btn.selected {
+  border-color: var(--blue);
+  background: var(--blue-dim);
+  box-shadow: 0 0 0 3px rgba(59,111,240,.12);
+}
+
+.option-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  background: var(--surface);
+}
+.option-btn.selected .option-icon,
+.option-btn:hover .option-icon { background: white; }
+
+.option-text strong {
+  display: block;
+  font-size: .93rem;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.option-text span {
+  font-size: .8rem;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+
+/* ── PROGRESO ENCUESTA ────────────────────────────────── */
+.survey-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.progress-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background .3s;
+}
+.progress-dot.done { background: var(--blue); }
+.progress-label {
+  font-size: .8rem;
+  color: var(--text-3);
+  margin-left: 4px;
+}
+
+/* ── EXAM SCREEN ──────────────────────────────────────── */
+.exam-screen {
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.exam-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+}
+
+.exam-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--navy);
+}
+
+.exam-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.sem-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .8rem;
+  color: var(--text-2);
+}
+
+.sem-bar-wrap {
+  width: 80px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.sem-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--amber), var(--red));
+  border-radius: 3px;
+  transition: width .5s ease;
+}
+
+.question-counter {
+  font-family: var(--font-head);
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--surface);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.exam-body {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 24px 48px;
+}
+
+.exam-card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 720px;
+  padding: 40px;
+  border: 1px solid rgba(0,0,0,.05);
+}
+
+.question-label {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--blue);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.question-text {
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-1);
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+
+.question-code {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  font-family: 'Courier New', monospace;
+  font-size: .85rem;
+  line-height: 1.6;
+  margin: 16px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 28px 0 32px;
+}
+
+.option-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+  transition: all .2s;
+  text-align: left;
+  width: 100%;
+  font-size: .93rem;
+  font-weight: 500;
+  color: var(--text-1);
+}
+.option-card:hover {
+  border-color: var(--blue);
+  background: var(--blue-dim);
+}
+.option-card.selected {
+  border-color: var(--blue);
+  background: var(--blue-dim);
+  box-shadow: 0 0 0 3px rgba(59,111,240,.12);
+}
+.option-card.correct {
+  border-color: var(--green);
+  background: #f0fdf4;
+}
+.option-card.wrong {
+  border-color: var(--red);
+  background: #fef2f2;
+}
+
+.option-letter {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-head);
+  font-size: .88rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all .2s;
+}
+.option-card.selected .option-letter {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+}
+
+.exam-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ── LOADING OVERLAY ──────────────────────────────────── */
+.loading-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px;
+  color: var(--text-2);
+}
+.loading-state.show { display: flex; }
+
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-size: .9rem;
+  font-weight: 500;
+  animation: pulse 1.5s ease infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── RESULT SCREEN ────────────────────────────────────── */
+.result-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  min-height: 100vh;
+}
+
+.result-bg-principiante {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, #d1fae5 0%, transparent 55%),
+    var(--surface);
+}
+.result-bg-intermedio {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, #dbeafe 0%, transparent 55%),
+    var(--surface);
+}
+.result-bg-avanzado {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, #fef3c7 0%, transparent 55%),
+    var(--surface);
+}
+
+.result-card {
+  background: var(--white);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 560px;
+  padding: 48px 40px;
+  border: 1px solid rgba(0,0,0,.06);
+  text-align: center;
+  animation: resultReveal .6s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes resultReveal {
+  from { opacity: 0; transform: scale(.88) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.result-icon-wrap {
+  margin: 0 auto 24px;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem;
+}
+.level-principiante .result-icon-wrap { background: #d1fae5; color: #059669; }
+.level-intermedio   .result-icon-wrap { background: #dbeafe; color: #2563eb; }
+.level-avanzado     .result-icon-wrap { background: #fef3c7; color: #d97706; }
+
+.result-eyebrow {
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+
+.result-level {
+  font-family: var(--font-head);
+  font-size: 2.6rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+.level-principiante .result-level { color: #059669; }
+.level-intermedio   .result-level { color: #2563eb; }
+.level-avanzado     .result-level { color: #d97706; }
+
+.result-desc {
+  font-size: .95rem;
+  color: var(--text-2);
+  line-height: 1.65;
+  margin-bottom: 32px;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.result-stat {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  padding: 14px 10px;
+  border: 1px solid var(--border);
+}
+.result-stat .val {
+  font-family: var(--font-head);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-1);
+  display: block;
+}
+.result-stat .lbl {
+  font-size: .72rem;
+  color: var(--text-3);
+  font-weight: 500;
+  margin-top: 2px;
+  display: block;
+}
+
+.result-message {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  font-size: .88rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  text-align: left;
+  border: 1px solid var(--border);
+}
+
+/* ── UTILITY ──────────────────────────────────────────── */
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0;
+  color: var(--text-3); font-size: .8rem;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ── RESPONSIVE ───────────────────────────────────────── */
+@media (max-width: 520px) {
+  .auth-card, .survey-card { padding: 28px 20px; }
+  .exam-card { padding: 24px 18px; }
+  .result-card { padding: 32px 20px; }
+  .form-row { grid-template-columns: 1fr; }
+  .result-stats { grid-template-columns: 1fr 1fr; }
+  .result-level { font-size: 2rem; }
+  .exam-header { padding: 0 16px; }
+  .exam-meta .sem-indicator { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 1 — LOGIN
+═══════════════════════════════════════════════════════════ -->
+<section class="screen auth-screen active" id="screen-login" aria-label="Inicio de sesión">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="brand-icon"><i class="fas fa-brain"></i></div>
+      <div class="brand-text">
+        <h1>DIANA</h1>
+        <span>Código para Todos · UV</span>
+      </div>
+    </div>
+    <h2 class="auth-title">Bienvenido</h2>
+    <p class="auth-subtitle">Inicia sesión para realizar tu diagnóstico de nivel en programación Java.</p>
+    <div class="alert alert-error" id="login-error" role="alert">
+      <i class="fas fa-circle-exclamation"></i>
+      <span id="login-error-msg">Error al iniciar sesión</span>
+    </div>
+    <div class="form-group">
+      <label for="login-email">Correo institucional</label>
+      <input type="email" id="login-email" placeholder="usuario@uv.mx" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label for="login-pass">Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary btn-lg" id="btn-login" onclick="doLogin()">
+      <i class="fas fa-arrow-right-to-bracket"></i>
+      Iniciar sesión
+    </button>
+    <div class="auth-footer">
+      ¿No tienes cuenta? <a href="#" onclick="goto('registro')">Regístrate aquí</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 2 — REGISTRO
+═══════════════════════════════════════════════════════════ -->
+<section class="screen auth-screen" id="screen-registro" aria-label="Registro">
+  <div class="auth-card" style="max-width:480px">
+    <div class="auth-brand">
+      <div class="brand-icon"><i class="fas fa-brain"></i></div>
+      <div class="brand-text">
+        <h1>DIANA</h1>
+        <span>Código para Todos · UV</span>
+      </div>
+    </div>
+    <h2 class="auth-title">Crear cuenta</h2>
+    <p class="auth-subtitle">Llena tus datos para comenzar el diagnóstico.</p>
+    <div class="alert alert-error" id="reg-error" role="alert">
+      <i class="fas fa-circle-exclamation"></i>
+      <span id="reg-error-msg">Error al registrarse</span>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="reg-nombre">Nombre</label>
+        <input type="text" id="reg-nombre" placeholder="Tu nombre">
+      </div>
+      <div class="form-group">
+        <label for="reg-apellido">Apellido</label>
+        <input type="text" id="reg-apellido" placeholder="Tu apellido">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="reg-email">Correo</label>
+      <input type="email" id="reg-email" placeholder="usuario@uv.mx">
+    </div>
+    <div class="form-group">
+      <label for="reg-pass">Contraseña</label>
+      <input type="password" id="reg-pass" placeholder="Mínimo 8 caracteres">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="reg-semestre">Semestre</label>
+        <input type="number" id="reg-semestre" placeholder="Ej: 3" min="1" max="12">
+      </div>
+      <div class="form-group">
+        <label for="reg-grupo">Grupo</label>
+        <input type="text" id="reg-grupo" placeholder="Ej: A02">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="doRegistro()">
+      <i class="fas fa-user-plus"></i>
+      Crear cuenta
+    </button>
+    <div class="auth-footer">
+      ¿Ya tienes cuenta? <a href="#" onclick="goto('login')">Inicia sesión</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 3 — ENCUESTA PREVIA
+═══════════════════════════════════════════════════════════ -->
+<section class="screen survey-screen" id="screen-encuesta" aria-label="Encuesta previa">
+  <div class="survey-card">
+
+    <div class="survey-progress" aria-label="Progreso de encuesta">
+      <div class="progress-dot done" id="dot-1"></div>
+      <div class="progress-dot" id="dot-2"></div>
+      <span class="progress-label" id="survey-progress-label">Paso 1 de 2</span>
+    </div>
+
+    <!-- Paso 1: ¿Has programado? -->
+    <div class="survey-step active" id="survey-step-1">
+      <div class="survey-badge"><i class="fas fa-code"></i> Antes de empezar</div>
+      <h2 class="survey-title">¿Has programado antes?</h2>
+      <p class="survey-desc">Esto nos ayuda a ajustar el diagnóstico a tu punto de partida real. No hay respuesta incorrecta.</p>
+      <div class="option-grid" role="radiogroup" aria-label="¿Has programado antes?">
+        <button class="option-btn" onclick="selectSurvey1(false)" id="survey1-no">
+          <div class="option-icon">🙅</div>
+          <div class="option-text">
+            <strong>Nunca he programado</strong>
+            <span>No tengo experiencia con ningún lenguaje</span>
+          </div>
+        </button>
+        <button class="option-btn" onclick="selectSurvey1(true)" id="survey1-yes">
+          <div class="option-icon">💻</div>
+          <div class="option-text">
+            <strong>Sí he programado</strong>
+            <span>Tengo experiencia con algún lenguaje (Java u otro)</span>
+          </div>
+        </button>
+      </div>
+      <button class="btn btn-primary btn-lg" id="btn-survey-1" onclick="nextSurvey()" disabled>
+        Continuar <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+
+    <!-- Paso 2: Nivel de experiencia -->
+    <div class="survey-step" id="survey-step-2">
+      <div class="survey-badge"><i class="fas fa-layer-group"></i> Nivel de experiencia</div>
+      <h2 class="survey-title">¿Qué has hecho en programación?</h2>
+      <p class="survey-desc">Elige la opción que mejor describe lo que sabes hacer actualmente.</p>
+      <div class="option-grid" role="radiogroup" aria-label="Nivel de experiencia">
+        <button class="option-btn" onclick="selectSurvey2(1)" data-nivel="1">
+          <div class="option-icon">📝</div>
+          <div class="option-text">
+            <strong>Variables y operadores básicos</strong>
+            <span>Declarar variables, tipos de datos, operaciones simples</span>
+          </div>
+        </button>
+        <button class="option-btn" onclick="selectSurvey2(2)" data-nivel="2">
+          <div class="option-icon">🔄</div>
+          <div class="option-text">
+            <strong>Ciclos, condicionales y métodos</strong>
+            <span>For, while, if-else, funciones básicas</span>
+          </div>
+        </button>
+        <button class="option-btn" onclick="selectSurvey2(3)" data-nivel="3">
+          <div class="option-icon">🏗️</div>
+          <div class="option-text">
+            <strong>POO, herencia y colecciones</strong>
+            <span>Clases, objetos, herencia, ArrayList, HashMap</span>
+          </div>
+        </button>
+        <button class="option-btn" onclick="selectSurvey2(4)" data-nivel="4">
+          <div class="option-icon">🚀</div>
+          <div class="option-text">
+            <strong>Proyectos reales y patrones</strong>
+            <span>APIs, excepciones avanzadas, patrones de diseño</span>
+          </div>
+        </button>
+      </div>
+      <button class="btn btn-primary btn-lg" id="btn-survey-2" onclick="submitSurvey()" disabled>
+        Iniciar diagnóstico <i class="fas fa-play"></i>
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 4 — EXAMEN
+═══════════════════════════════════════════════════════════ -->
+<section class="screen exam-screen" id="screen-examen" aria-label="Examen diagnóstico">
+
+  <header class="exam-header">
+    <div class="exam-brand">
+      <i class="fas fa-brain" style="color:var(--blue)"></i>
+      Diagnóstico DIANA
+    </div>
+    <div class="exam-meta">
+      <div class="sem-indicator" aria-label="Precisión del diagnóstico" title="Precisión del sistema">
+        <i class="fas fa-crosshairs" style="color:var(--blue);font-size:.75rem"></i>
+        <span>Precisión</span>
+        <div class="sem-bar-wrap">
+          <div class="sem-bar-fill" id="sem-bar" style="width:10%"></div>
+        </div>
+      </div>
+      <div class="question-counter" id="question-counter" aria-live="polite">Pregunta 1</div>
+    </div>
+  </header>
+
+  <main class="exam-body">
+    <div class="exam-card">
+
+      <!-- Loading -->
+      <div class="loading-state show" id="exam-loading" aria-label="Cargando pregunta">
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="loading-text">Preparando tu próxima pregunta…</p>
+      </div>
+
+      <!-- Contenido pregunta -->
+      <div id="exam-content" style="display:none">
+        <p class="question-label" id="q-label">Pregunta 1 · Diagnóstico</p>
+        <h2 class="question-text" id="q-text"></h2>
+        <pre class="question-code" id="q-code" style="display:none"></pre>
+
+        <div class="options-grid" id="options-container" role="radiogroup" aria-label="Opciones de respuesta">
+        </div>
+
+        <div class="exam-actions">
+          <button class="btn btn-primary btn-lg" id="btn-responder" onclick="submitRespuesta()" disabled>
+            Confirmar respuesta <i class="fas fa-check"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN 5 — RESULTADO
+═══════════════════════════════════════════════════════════ -->
+<section class="screen" id="screen-resultado" aria-label="Resultado del diagnóstico">
+  <div class="result-card" id="result-card">
+
+    <div class="result-icon-wrap" id="result-icon" aria-hidden="true"></div>
+    <p class="result-eyebrow">Tu nivel diagnosticado</p>
+    <h2 class="result-level" id="result-level-text"></h2>
+    <p class="result-desc" id="result-desc"></p>
+
+    <div class="result-stats" aria-label="Estadísticas del diagnóstico">
+      <div class="result-stat">
+        <span class="val" id="res-theta">—</span>
+        <span class="lbl">θ estimado</span>
+      </div>
+      <div class="result-stat">
+        <span class="val" id="res-items">—</span>
+        <span class="lbl">Preguntas respondidas</span>
+      </div>
+      <div class="result-stat">
+        <span class="val" id="res-ic">—</span>
+        <span class="lbl">IC 95%</span>
+      </div>
+    </div>
+
+    <div class="result-message" id="result-message" aria-live="polite"></div>
+
+  </div>
+</section>
+
+</div><!-- /app -->
+
+<script>
+/* ── CONFIG ───────────────────────────────────────────── */
+const API = 'http://localhost:8000';
+
+/* ── ESTADO ───────────────────────────────────────────── */
+let state = {
+  usuarioId:    null,
+  nombre:       '',
+  sesionId:     null,
+  estadoSesion: null,
+  haProgramado: null,
+  nivelExp:     null,
+  itemId:       null,
+  opcionSel:    null,
+  paso:         0,
+  semActual:    1.0,
+};
+
+/* ── NAVEGACIÓN ───────────────────────────────────────── */
+function goto(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + screenId);
+  if (el) { el.classList.add('active'); window.scrollTo(0, 0); }
+}
+
+/* ── HELPERS ──────────────────────────────────────────── */
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Error del servidor');
+  return data;
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  const msgEl = document.getElementById(id + '-msg');
+  if (msgEl) msgEl.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function setBtn(id, loading, text) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  if (loading) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px"></span> Cargando…';
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = text;
+  }
+}
+
+/* ── LOGIN ────────────────────────────────────────────── */
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if (!email || !pass) return showError('login-error', 'Completa todos los campos');
+
+  setBtn('btn-login', true);
+  try {
+    const data = await api('POST', '/login', { correo: email, password: pass });
+    state.usuarioId = data.usuario_id;
+    state.nombre    = data.nombre;
+
+    if (!data.tiene_encuesta) {
+      goto('encuesta');
+    } else if (data.estado_sesion === 'completado' || data.estado_sesion === 'saltado') {
+      await cargarResultado();
+    } else {
+      await iniciarExamen();
+    }
+  } catch(e) {
+    showError('login-error', e.message);
+  } finally {
+    setBtn('btn-login', false, '<i class="fas fa-arrow-right-to-bracket"></i> Iniciar sesión');
+  }
+}
+
+// Enter en login
+document.getElementById('login-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+/* ── REGISTRO ─────────────────────────────────────────── */
+async function doRegistro() {
+  const nombre   = document.getElementById('reg-nombre').value.trim();
+  const apellido = document.getElementById('reg-apellido').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const pass     = document.getElementById('reg-pass').value;
+  const semestre = parseInt(document.getElementById('reg-semestre').value) || null;
+  const grupo    = document.getElementById('reg-grupo').value.trim() || null;
+
+  if (!nombre || !apellido || !email || !pass) {
+    return showError('reg-error', 'Nombre, apellido, correo y contraseña son requeridos');
+  }
+  if (pass.length < 6) return showError('reg-error', 'La contraseña debe tener al menos 6 caracteres');
+
+  try {
+    const data = await api('POST', '/registro', { correo: email, password: pass, nombre, apellido, semestre, grupo });
+    state.usuarioId = data.usuario_id;
+    state.nombre    = data.nombre;
+    goto('encuesta');
+  } catch(e) {
+    showError('reg-error', e.message);
+  }
+}
+
+/* ── ENCUESTA ─────────────────────────────────────────── */
+function selectSurvey1(val) {
+  state.haProgramado = val;
+  document.querySelectorAll('#survey-step-1 .option-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(val ? 'survey1-yes' : 'survey1-no').classList.add('selected');
+  document.getElementById('btn-survey-1').disabled = false;
+}
+
+function selectSurvey2(nivel) {
+  state.nivelExp = nivel;
+  document.querySelectorAll('#survey-step-2 .option-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelector(`[data-nivel="${nivel}"]`).classList.add('selected');
+  document.getElementById('btn-survey-2').disabled = false;
+}
+
+function nextSurvey() {
+  if (!state.haProgramado) {
+    // Nunca ha programado → principiante directo
+    state.nivelExp = 0;
+    submitSurvey();
+    return;
+  }
+  // Ir al paso 2
+  document.getElementById('survey-step-1').classList.remove('active');
+  document.getElementById('survey-step-2').classList.add('active');
+  document.getElementById('dot-2').classList.add('done');
+  document.getElementById('survey-progress-label').textContent = 'Paso 2 de 2';
+}
+
+async function submitSurvey() {
+  const body = {
+    usuario_id:        state.usuarioId,
+    ha_programado:     state.haProgramado ?? false,
+    nivel_experiencia: state.nivelExp ?? 0,
+  };
+  document.getElementById('btn-survey-2').disabled = true;
+  try {
+    const data = await api('POST', '/encuesta', body);
+    if (!data.examen_requerido) {
+      await cargarResultado();
+    } else {
+      await iniciarExamen();
+    }
+  } catch(e) {
+    alert('Error al guardar encuesta: ' + e.message);
+    document.getElementById('btn-survey-2').disabled = false;
+  }
+}
+
+/* ── EXAMEN ───────────────────────────────────────────── */
+async function iniciarExamen() {
+  goto('examen');
+  // Obtener sesion_id del estado
+  const est = await api('GET', `/examen/estado/${state.usuarioId}`);
+  state.sesionId = est.sesion_id;
+  state.paso = est.n_items || 0;
+  await cargarSiguientePregunta();
+}
+
+async function cargarSiguientePregunta() {
+  mostrarLoading(true);
+  state.opcionSel = null;
+  document.getElementById('btn-responder').disabled = true;
+
+  try {
+    const data = await api('GET', `/examen/siguiente/${state.sesionId}`);
+
+    if (data.examen_completado) {
+      await cargarResultado();
+      return;
+    }
+
+    state.itemId = data.item_id;
+    state.paso   = data.paso_actual;
+    renderPregunta(data);
+    mostrarLoading(false);
+  } catch(e) {
+    alert('Error cargando pregunta: ' + e.message);
+  }
+}
+
+function renderPregunta(data) {
+  // Detectar si hay código en el enunciado
+  const enunciado = data.enunciado || '';
+  const codeMatch = enunciado.match(/^(.*?)\n([\s\S]+)$/);
+
+  const qText = document.getElementById('q-text');
+  const qCode = document.getElementById('q-code');
+
+  if (codeMatch && (codeMatch[2].includes('{') || codeMatch[2].includes('int ') || codeMatch[2].includes('for '))) {
+    qText.textContent = codeMatch[1].trim();
+    qCode.textContent = codeMatch[2].trim();
+    qCode.style.display = 'block';
+  } else {
+    qText.textContent = enunciado;
+    qCode.style.display = 'none';
+  }
+
+  document.getElementById('q-label').textContent = `Pregunta ${state.paso} · Diagnóstico`;
+  document.getElementById('question-counter').textContent = `Pregunta ${state.paso}`;
+
+  // Actualizar barra de SEM (invertida: mayor precisión = más verde)
+  const semNorm = Math.min(100, Math.max(0, (1 - state.semActual / 1.0) * 100));
+  document.getElementById('sem-bar').style.width = semNorm + '%';
+
+  // Renderizar opciones
+  const letters = ['A', 'B', 'C', 'D'];
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+
+  data.opciones.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-card';
+    btn.setAttribute('role', 'radio');
+    btn.setAttribute('aria-checked', 'false');
+    btn.innerHTML = `
+      <span class="option-letter" aria-hidden="true">${letters[i]}</span>
+      <span>${escapeHtml(opt)}</span>
+    `;
+    btn.onclick = () => selectOpcion(btn, opt);
+    container.appendChild(btn);
+  });
+
+  document.getElementById('exam-content').style.display = 'block';
+}
+
+function selectOpcion(btn, valor) {
+  document.querySelectorAll('.option-card').forEach(b => {
+    b.classList.remove('selected');
+    b.setAttribute('aria-checked', 'false');
+  });
+  btn.classList.add('selected');
+  btn.setAttribute('aria-checked', 'true');
+  state.opcionSel = valor;
+  document.getElementById('btn-responder').disabled = false;
+}
+
+async function submitRespuesta() {
+  if (!state.opcionSel) return;
+
+  document.getElementById('btn-responder').disabled = true;
+  document.querySelectorAll('.option-card').forEach(b => b.style.pointerEvents = 'none');
+
+  try {
+    const data = await api('POST', '/examen/responder', {
+      sesion_id:      state.sesionId,
+      item_id:        state.itemId,
+      respuesta_dada: state.opcionSel,
+    });
+
+    state.semActual = data.sem_actual || data.sem_final || state.semActual;
+
+    if (data.examen_completado) {
+      await cargarResultado();
+    } else {
+      await cargarSiguientePregunta();
+    }
+  } catch(e) {
+    alert('Error al registrar respuesta: ' + e.message);
+    document.getElementById('btn-responder').disabled = false;
+  }
+}
+
+function mostrarLoading(show) {
+  document.getElementById('exam-loading').classList.toggle('show', show);
+  document.getElementById('exam-content').style.display = show ? 'none' : 'block';
+}
+
+/* ── RESULTADO ────────────────────────────────────────── */
+const NIVELES = {
+  principiante: {
+    icon: '🌱',
+    label: 'Principiante',
+    color: 'level-principiante',
+    bg: 'result-bg-principiante',
+    desc: 'Estás dando tus primeros pasos en programación Java. Tienes la base para crecer — el curso comenzará desde los fundamentos del pensamiento algorítmico para construir tu habilidad de forma sólida.',
+    msg: '💡 <strong>Recomendación:</strong> Empieza por los módulos de variables, tipos de datos y diagramas de flujo. Con práctica constante avanzarás rápidamente.'
+  },
+  intermedio: {
+    icon: '⚡',
+    label: 'Intermedio',
+    color: 'level-intermedio',
+    bg: 'result-bg-intermedio',
+    desc: 'Tienes conocimiento sólido de los fundamentos. Puedes escribir programas funcionales y entiendes la lógica de control. El curso te llevará hacia la programación orientada a objetos y estructuras de datos.',
+    msg: '🎯 <strong>Recomendación:</strong> Enfócate en los módulos de clases, herencia y colecciones. Ya tienes la base — es momento de estructurar mejor tus programas.'
+  },
+  avanzado: {
+    icon: '🚀',
+    label: 'Avanzado',
+    color: 'level-avanzado',
+    bg: 'result-bg-avanzado',
+    desc: 'Tienes dominio avanzado de Java. Comprendes conceptos complejos de POO, manejo de excepciones y estructuras de datos. El curso ofrecerá retos y proyectos a tu nivel.',
+    msg: '🏆 <strong>Recomendación:</strong> Explora los módulos de patrones de diseño, concurrencia y proyectos integradores. Tu nivel permite profundizar en arquitectura de software.'
+  }
+};
+
+async function cargarResultado() {
+  try {
+    const data = await api('GET', `/examen/resultado/${state.usuarioId}`);
+    renderResultado(data);
+    goto('resultado');
+  } catch(e) {
+    alert('Error cargando resultado: ' + e.message);
+  }
+}
+
+function renderResultado(data) {
+  const nivel = data.nivel || 'principiante';
+  const info  = NIVELES[nivel] || NIVELES.principiante;
+  const card  = document.getElementById('result-card');
+  const screen = document.getElementById('screen-resultado');
+
+  // Limpiar clases anteriores
+  card.className = 'result-card ' + info.color;
+  screen.className = 'screen ' + info.bg;
+
+  document.getElementById('result-icon').textContent = info.icon;
+  document.getElementById('result-level-text').textContent = info.label;
+  document.getElementById('result-desc').textContent = info.desc;
+  document.getElementById('result-message').innerHTML = info.msg;
+
+  const theta   = data.theta != null ? data.theta.toFixed(3) : '—';
+  const items   = data.n_items != null ? data.n_items : '—';
+  const icInf   = data.ic_inf != null ? data.ic_inf.toFixed(2) : '—';
+  const icSup   = data.ic_sup != null ? data.ic_sup.toFixed(2) : '—';
+  const ic      = icInf !== '—' ? `[${icInf}, ${icSup}]` : '—';
+
+  document.getElementById('res-theta').textContent  = theta;
+  document.getElementById('res-items').textContent  = items;
+  document.getElementById('res-ic').textContent     = ic;
+}
+
+/* ── UTILS ────────────────────────────────────────────── */
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
