@@ -53,11 +53,11 @@ app.add_middleware(
 # CONFIGURACIÓN
 # ================================================================
 DB_CONFIG = {
-    'host':     os.getenv('DB_HOST', 'localhost'),
-    'port':     int(os.getenv('DB_PORT', 3306)),
-    'user':     os.getenv('DB_USER', 'root'),
-    'password': os.getenv('DB_PASSWORD', '9123'),
-    'database': os.getenv('DB_NAME', 'diana_db')
+    'host':     os.getenv('MYSQLHOST', 'localhost'),
+    'port':     int(os.getenv('MYSQLPORT', 3306)),
+    'user':     os.getenv('MYSQLUSER', 'root'),
+    'password': os.getenv('MYSQLPASSWORD', '9123'),
+    'database': os.getenv('MYSQLDATABASE', 'diana_db')
 }
 
 # ================================================================
