@@ -44,7 +44,7 @@ app.add_middleware(
     allow_origins=["https://diana-sistema.netlify.app", "null"],
     allow_methods=["*"],
     allow_headers=["*"],
-
+    allow_credentials=False,
 )
 
 # ================================================================
