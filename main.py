@@ -22,6 +22,8 @@ Endpoints:
     GET  /investigador/{id} — Trayectoria de θ de un estudiante
 """
 
+import os
+
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
@@ -49,11 +51,11 @@ app.add_middleware(
 # CONFIGURACIÓN
 # ================================================================
 DB_CONFIG = {
-    'host':     'localhost',
-    'port':     3306,
-    'user':     'root',
-    'password': '9123',
-    'database': 'diana_db'
+    'host':     os.getenv('DB_HOST', 'localhost'),
+    'port':     int(os.getenv('DB_PORT', 3306)),
+    'user':     os.getenv('DB_USER', 'root'),
+    'password': os.getenv('DB_PASSWORD', '9123'),
+    'database': os.getenv('DB_NAME', 'diana_db')
 }
 
 # ================================================================
