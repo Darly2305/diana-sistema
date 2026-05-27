@@ -41,11 +41,10 @@ app = FastAPI(title="DIANA API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    "https://diana-sistema.netlify.app",
-    allow_origins=["*", "null"],
+    allow_origins=["https://diana-sistema.netlify.app", "null"],
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=False,
+
 )
 
 # ================================================================
